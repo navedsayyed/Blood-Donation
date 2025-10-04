@@ -14,4 +14,6 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  // 👇 important for GitHub Pages
+  base: "/Blood-Donation/",
 }));

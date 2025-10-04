@@ -9,7 +9,7 @@ import RegisterDonor from "./pages/RegisterDonor";
 import UserDashboard from "./pages/UserDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
-
+import { HashRouter as Router } from "react-router-dom";
 const queryClient = new QueryClient();
 
 const App = () => (
