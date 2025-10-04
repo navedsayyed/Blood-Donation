@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Droplet, Users, Search, LogOut, Phone, Mail, MapPin, AlertCircle, Menu, X, Activity, Send } from 'lucide-react';
+import { Droplet, Users, Search, LogOut, Phone, Mail, MapPin, AlertCircle, Menu, X, Activity, Send, History, XCircle, CheckCircle, Clock } from 'lucide-react';
 
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
@@ -44,6 +44,23 @@ interface UrgentRequest {
   additional_notes: string;
 }
 
+interface UrgentRequestHistory {
+  id: string;
+  blood_group: string;
+  units_needed: number;
+  hospital_name: string;
+  city: string;
+  state: string;
+  contact_number: string;
+  patient_name: string | null;
+  urgency_level: string;
+  additional_notes: string | null;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  fulfilled_at: string | null;
+}
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -56,6 +73,8 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [urgentDialogOpen, setUrgentDialogOpen] = useState(false);
+  const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
+  const [urgentRequests, setUrgentRequests] = useState<UrgentRequestHistory[]>([]);
   const [urgentRequest, setUrgentRequest] = useState<UrgentRequest>({
     blood_group: '',
     units_needed: 1,
@@ -70,6 +89,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     checkAdminAndFetchData();
+    fetchUrgentRequests();
   }, []);
 
   const checkAdminAndFetchData = async () => {
@@ -121,6 +141,72 @@ const AdminDashboard = () => {
     
     setTotalDonors(total || 0);
     setActiveDonors(active || 0);
+  };
+
+  const fetchUrgentRequests = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('urgent_blood_requests')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setUrgentRequests(data || []);
+    } catch (error: any) {
+      console.error('Error fetching urgent requests:', error);
+    }
+  };
+
+  const handleCancelRequest = async (requestId: string) => {
+    try {
+      const { error } = await supabase
+        .from('urgent_blood_requests')
+        .update({ status: 'cancelled', updated_at: new Date().toISOString() })
+        .eq('id', requestId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Request Cancelled",
+        description: "The urgent blood request has been withdrawn",
+      });
+
+      await fetchUrgentRequests();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleFulfillRequest = async (requestId: string) => {
+    try {
+      const { error } = await supabase
+        .from('urgent_blood_requests')
+        .update({ 
+          status: 'fulfilled', 
+          fulfilled_at: new Date().toISOString(),
+          updated_at: new Date().toISOString() 
+        })
+        .eq('id', requestId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Request Fulfilled",
+        description: "The urgent blood request has been marked as fulfilled",
+      });
+
+      await fetchUrgentRequests();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSearch = async () => {
@@ -204,6 +290,7 @@ const AdminDashboard = () => {
         additional_notes: ''
       });
       setUrgentDialogOpen(false);
+      await fetchUrgentRequests();
 
       console.log('Notifying donors:', matchingDonors);
 
@@ -294,13 +381,135 @@ const AdminDashboard = () => {
             <p className="text-gray-600 mt-1">Manage blood donors and urgent requests</p>
           </div>
           
-          <Dialog open={urgentDialogOpen} onOpenChange={setUrgentDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-red-600 hover:bg-red-700">
-                <AlertCircle className="w-4 h-4 mr-2" />
-                Create Urgent Request
-              </Button>
-            </DialogTrigger>
+          <div className="flex gap-3">
+            <Dialog open={historyDialogOpen} onOpenChange={setHistoryDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
+                  <History className="w-4 h-4 mr-2" />
+                  View History
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2 text-xl">
+                    <History className="w-6 h-6 text-blue-600" />
+                    Urgent Blood Requests History
+                  </DialogTitle>
+                </DialogHeader>
+                
+                <div className="space-y-3 mt-4">
+                  {urgentRequests.length === 0 ? (
+                    <div className="text-center py-12">
+                      <History className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                      <p className="text-gray-500">No urgent requests found</p>
+                    </div>
+                  ) : (
+                    urgentRequests.map((request) => (
+                      <Card key={request.id} className={`${
+                        request.status === 'active' ? 'border-l-4 border-l-red-500 bg-red-50' :
+                        request.status === 'fulfilled' ? 'border-l-4 border-l-green-500 bg-green-50' :
+                        'border-l-4 border-l-gray-500 bg-gray-50'
+                      }`}>
+                        <CardContent className="pt-6">
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-3 mb-3">
+                                <span className="text-3xl font-bold text-red-600">{request.blood_group}</span>
+                                <div>
+                                  <p className="font-bold text-lg">{request.patient_name || 'Patient'}</p>
+                                  <p className="text-sm text-gray-600">{request.hospital_name}</p>
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-2 gap-3 text-sm mb-3">
+                                <div className="flex items-center gap-2">
+                                  <Droplet className="w-4 h-4 text-gray-400" />
+                                  <span>{request.units_needed} units needed</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <MapPin className="w-4 h-4 text-gray-400" />
+                                  <span>{request.city}, {request.state}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Phone className="w-4 h-4 text-gray-400" />
+                                  <span>{request.contact_number}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Clock className="w-4 h-4 text-gray-400" />
+                                  <span className={`font-semibold ${
+                                    request.urgency_level === 'critical' ? 'text-red-600' :
+                                    request.urgency_level === 'high' ? 'text-orange-600' :
+                                    'text-yellow-600'
+                                  }`}>
+                                    {request.urgency_level.toUpperCase()}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {request.additional_notes && (
+                                <p className="text-sm text-gray-600 mb-3">
+                                  <strong>Notes:</strong> {request.additional_notes}
+                                </p>
+                              )}
+
+                              <div className="text-xs text-gray-500">
+                                <p>Created: {new Date(request.created_at).toLocaleString()}</p>
+                                {request.fulfilled_at && (
+                                  <p>Fulfilled: {new Date(request.fulfilled_at).toLocaleString()}</p>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="flex flex-col items-end gap-2 ml-4">
+                              <div className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                request.status === 'active' ? 'bg-red-100 text-red-700' :
+                                request.status === 'fulfilled' ? 'bg-green-100 text-green-700' :
+                                'bg-gray-100 text-gray-700'
+                              }`}>
+                                {request.status === 'active' && <AlertCircle className="w-3 h-3 inline mr-1" />}
+                                {request.status === 'fulfilled' && <CheckCircle className="w-3 h-3 inline mr-1" />}
+                                {request.status === 'cancelled' && <XCircle className="w-3 h-3 inline mr-1" />}
+                                {request.status.toUpperCase()}
+                              </div>
+
+                              {request.status === 'active' && (
+                                <div className="flex flex-col gap-2">
+                                  <Button 
+                                    size="sm" 
+                                    className="bg-green-600 hover:bg-green-700"
+                                    onClick={() => handleFulfillRequest(request.id)}
+                                  >
+                                    <CheckCircle className="w-3 h-3 mr-1" />
+                                    Fulfill
+                                  </Button>
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    className="border-red-600 text-red-600 hover:bg-red-50"
+                                    onClick={() => handleCancelRequest(request.id)}
+                                  >
+                                    <XCircle className="w-3 h-3 mr-1" />
+                                    Cancel
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={urgentDialogOpen} onOpenChange={setUrgentDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-red-600 hover:bg-red-700">
+                  <AlertCircle className="w-4 h-4 mr-2" />
+                  Create Urgent Request
+                </Button>
+              </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2 text-xl">
@@ -433,6 +642,7 @@ const AdminDashboard = () => {
               </div>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
 
         {/* Statistics Cards */}
