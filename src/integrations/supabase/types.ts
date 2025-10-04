@@ -125,6 +125,60 @@ export type Database = {
         }
         Relationships: []
       }
+      urgent_blood_requests: {
+        Row: {
+          id: string
+          blood_group: string
+          units_needed: number
+          hospital_name: string
+          city: string
+          state: string
+          contact_number: string
+          patient_name: string | null
+          urgency_level: string
+          additional_notes: string | null
+          status: string
+          created_by: string | null
+          created_at: string
+          updated_at: string
+          fulfilled_at: string | null
+        }
+        Insert: {
+          id?: string
+          blood_group: string
+          units_needed?: number
+          hospital_name: string
+          city: string
+          state: string
+          contact_number: string
+          patient_name?: string | null
+          urgency_level?: string
+          additional_notes?: string | null
+          status?: string
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+          fulfilled_at?: string | null
+        }
+        Update: {
+          id?: string
+          blood_group?: string
+          units_needed?: number
+          hospital_name?: string
+          city?: string
+          state?: string
+          contact_number?: string
+          patient_name?: string | null
+          urgency_level?: string
+          additional_notes?: string | null
+          status?: string
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+          fulfilled_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
