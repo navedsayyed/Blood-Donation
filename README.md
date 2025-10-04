@@ -1,4 +1,4 @@
-# Blood Donation Management System — Project README
+# Blood Donation Management System
 
 This repository contains the Blood Donation Management System — a React + TypeScript single-page application that integrates with Supabase for auth and data storage. The app provides donor registration, admin dashboard, and user dashboards for managing donors and donations.
 
