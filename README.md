@@ -1,111 +1,102 @@
-# Welcome to your project
+# Blood Donation Management System — Project README
 
-## Project info
+This repository contains the Blood Donation Management System — a React + TypeScript single-page application that integrates with Supabase for auth and data storage. The app provides donor registration, admin dashboard, and user dashboards for managing donors and donations.
 
-**URL**: (project URL or local)
+## Quick links
+- Local dev URL (default Vite): http://localhost:5173 (Vite may show a different port like 8080; check terminal output)
+- Supabase migrations: `supabase/migrations/20251004083457_05a9cc30-a14b-43a4-b755-7a2a9059df9d.sql`
 
-## How can I edit this code?
+## Features
+- Donor registration and profile management
+- User authentication (Supabase Auth)
+- Admin dashboard with basic analytics and donor management
+- Role-based access control (admin / donor)
 
-There are several ways of editing your application.
+## Requirements
+- Node.js (16+, recommended LTS)
+- npm (or pnpm/yarn) — this project uses npm by default
+- Supabase account (for running against a hosted DB) — optional for local UI-only work
 
-You can edit this project locally using your preferred IDE or editor. Changes can be committed and pushed to your repository as usual.
+## Setup (local development)
+1. Clone the repo:
 
-**Use your preferred IDE**
+```bash
+git clone <YOUR_REPO_URL>
+cd life-link-dashboard-main
+```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes.
+2. Copy environment example and set values:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+```bash
+cp .env.example .env
+# Edit .env with your VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY
+```
 
-Follow these steps:
+3. Install dependencies:
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+```bash
+npm install
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+4. Start the dev server:
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Open the URL printed by Vite (http://localhost:5173 or the URL shown in terminal).
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Environment variables
+Create a `.env` file at the project root with:
 
-**Use GitHub Codespaces**
+```
+VITE_SUPABASE_URL=https://your-project-ref.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=your-anon-or-public-key
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Keep service_role or any server keys out of browser code.
 
-## What technologies are used for this project?
+## Supabase migrations
+- The SQL file at `supabase/migrations/20251004083457_05a9cc30-a14b-43a4-b755-7a2a9059df9d.sql` sets up the expected schema (profiles, user_roles, donors, RLS policies, triggers). Use the Supabase dashboard or CLI to run it.
 
-This project is built with:
+## Key scripts
+- `npm run dev` — start Vite dev server
+- `npm run build` — build production assets
+- `npm run preview` — preview the production build locally
+- `npm run lint` — run ESLint
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Project structure (important files)
+- `src/` — application source
+	- `main.tsx` — app entry
+	- `App.tsx` — top-level App component and routing
+	- `pages/` — page components (AdminDashboard, UserDashboard, Login, RegisterDonor, etc.)
+	- `integrations/supabase/` — Supabase client and types
+	- `components/` — UI building blocks
+- `public/` — static assets (favicon, logos)
+- `supabase/` — migration SQL and config
 
-## How can I deploy this project?
+## How to run the migrations locally
+1. Create a Supabase project and get the URL and anon key.
+2. Connect with the Supabase CLI or use the dashboard SQL editor to run the migration file.
 
-Follow your normal deployment workflow or hosting provider's instructions to publish this project.
+## Common troubleshooting
+- If icons or favicons don't update, hard-refresh (Ctrl+F5) or clear cache. Favicons are heavily cached by browsers.
+- If TypeScript or build errors appear after edits, run `npm run dev` and check the terminal output for exact errors; fix import paths or missing types.
+- If Supabase errors show up, verify env variables and confirm the migration has been applied.
 
-## Can I connect a custom domain?
+## Deployment notes
+- Build with `npm run build` and deploy the `dist/` folder to your static host (Netlify, Vercel, Cloudflare Pages, etc.) or serve via a Node server that hosts static files.
+- If you deploy to a platform that supports environment variables, set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` there.
 
-Yes — follow your hosting provider's domain configuration steps. If you deploy to a platform, check its docs for custom domain setup.
+## Contributors & contact
+- Repo owner / maintainer: navedsayyed
 
-## Supabase — setup your own database (step-by-step)
+---
 
-If your friend already used Supabase for this project, you can create your own Supabase project and run the included migrations so the app works exactly the same.
+If you'd like, I can:
+- Add a short screenshot gallery to `README.md` (login, admin dashboard, donor registration)
+- Add a quick health-check script for Supabase connectivity
+- Add a small CONTRIBUTING.md with development guidelines
 
-1) Create a Supabase project
-	- Go to https://app.supabase.com and sign in or sign up.
-	- Click "New project" and follow the prompts. Choose a password for the database and note it down.
-	- Wait for the project to be provisioned.
-
-2) Get the project URL and anon/public key
-	- In the Supabase project, open Settings → API.
-	- Copy the "Project URL" (it looks like https://<project-ref>.supabase.co).
-	- Copy the "anon/public" key under "Config" → "API" (Client API keys).
-
-3) Add keys locally
-	- Copy `.env.example` to `.env` at the repository root and fill the values:
-
-	  VITE_SUPABASE_URL=https://your-project-ref.supabase.co
-	  VITE_SUPABASE_PUBLISHABLE_KEY=your-anon-or-public-key
-
-	- Vite will load env variables prefixed with VITE_ at build/dev time.
-
-4) Run the migrations (create tables, enums, policies)
-	- The SQL migration is in `supabase/migrations/20251004083457_05a9cc30-a14b-43a4-b755-7a2a9059df9d.sql` and it creates the `profiles`, `user_roles`, `donors` tables, enum `app_role`, RLS policies, triggers and helper functions.
-	- You can apply this SQL in two ways:
-	  - Supabase Dashboard: open SQL Editor → run the contents of that file.
-	  - supabase CLI: install the Supabase CLI (https://supabase.com/docs/guides/cli) and use `supabase db remote commit` / `supabase db push` depending on CLI version. (See Supabase docs for exact commands.)
-
-5) Start the app locally
-	- Install deps and run dev server:
-
-	  npm install
-	  npm run dev
-
-	- Open http://localhost:5173 (or the URL shown by Vite).
-
-6) Verify
-	- Register a new user in the app. The `auth.users` row is handled by Supabase Auth. The migration's trigger `handle_new_user` will create a matching `profiles` row and a default `user_roles` entry.
-	- In the Supabase Dashboard you should see rows in `profiles`, `user_roles`, and `donors` after relevant actions.
-
-Notes and tips
- - If you need server-side service role actions (not recommended in the browser), you'll find the service_role key in Settings → API. Keep it secret — never commit it.
- - If you run into CORS or missing env issues, ensure `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` are present in your `.env` and that Vite was restarted after changes.
- - The app expects the DB schema shown in `src/integrations/supabase/types.ts`. If you modify tables, regenerate types if you use a generator.
+Tell me which additions you want and I'll add them.
 
