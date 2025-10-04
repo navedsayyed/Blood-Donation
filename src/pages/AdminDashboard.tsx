@@ -75,6 +75,7 @@ const AdminDashboard = () => {
   const [urgentDialogOpen, setUrgentDialogOpen] = useState(false);
   const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
   const [urgentRequests, setUrgentRequests] = useState<UrgentRequestHistory[]>([]);
+  const [activeSection, setActiveSection] = useState('dashboard');
   const [urgentRequest, setUrgentRequest] = useState<UrgentRequest>({
     blood_group: '',
     units_needed: 1,
@@ -303,6 +304,15 @@ const AdminDashboard = () => {
     }
   };
 
+  const scrollToSection = (sectionId: string) => {
+    setActiveSection(sectionId);
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    setMobileMenuOpen(false);
+  };
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate('/login');
@@ -333,11 +343,25 @@ const AdminDashboard = () => {
             </div>
 
             <div className="hidden md:flex items-center gap-6">
-              <button className="flex items-center gap-2 text-gray-700 hover:text-red-500 transition-colors">
+              <button 
+                onClick={() => scrollToSection('dashboard')} 
+                className={`flex items-center gap-2 transition-colors ${
+                  activeSection === 'dashboard' 
+                    ? 'text-red-500 font-semibold' 
+                    : 'text-gray-700 hover:text-red-500'
+                }`}
+              >
                 <Activity className="w-5 h-5" />
                 <span>Dashboard</span>
               </button>
-              <button className="flex items-center gap-2 text-gray-700 hover:text-red-500 transition-colors">
+              <button 
+                onClick={() => scrollToSection('donors')} 
+                className={`flex items-center gap-2 transition-colors ${
+                  activeSection === 'donors' 
+                    ? 'text-red-500 font-semibold' 
+                    : 'text-gray-700 hover:text-red-500'
+                }`}
+              >
                 <Users className="w-5 h-5" />
                 <span>Donors</span>
               </button>
@@ -355,11 +379,25 @@ const AdminDashboard = () => {
           {mobileMenuOpen && (
             <div className="md:hidden py-4 border-t">
               <div className="flex flex-col gap-4">
-                <button className="flex items-center gap-2 text-gray-700">
+                <button 
+                  onClick={() => scrollToSection('dashboard')} 
+                  className={`flex items-center gap-2 ${
+                    activeSection === 'dashboard' 
+                      ? 'text-red-500 font-semibold' 
+                      : 'text-gray-700'
+                  }`}
+                >
                   <Activity className="w-5 h-5" />
                   <span>Dashboard</span>
                 </button>
-                <button className="flex items-center gap-2 text-gray-700">
+                <button 
+                  onClick={() => scrollToSection('donors')} 
+                  className={`flex items-center gap-2 ${
+                    activeSection === 'donors' 
+                      ? 'text-red-500 font-semibold' 
+                      : 'text-gray-700'
+                  }`}
+                >
                   <Users className="w-5 h-5" />
                   <span>Donors</span>
                 </button>
@@ -374,22 +412,23 @@ const AdminDashboard = () => {
       </nav>
 
       {/* Main Content */}
+      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex justify-between items-center mb-8">
+        <div id="dashboard" className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-8 scroll-mt-20">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
-            <p className="text-gray-600 mt-1">Manage blood donors and urgent requests</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Admin Dashboard</h1>
+            <p className="text-sm md:text-base text-gray-600 mt-1">Manage blood donors and urgent requests</p>
           </div>
           
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
             <Dialog open={historyDialogOpen} onOpenChange={setHistoryDialogOpen}>
               <DialogTrigger asChild>
-                <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
+                <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50 w-full sm:w-auto text-sm md:text-base">
                   <History className="w-4 h-4 mr-2" />
                   View History
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle className="flex items-center gap-2 text-xl">
                     <History className="w-6 h-6 text-blue-600" />
@@ -411,17 +450,17 @@ const AdminDashboard = () => {
                         'border-l-4 border-l-gray-500 bg-gray-50'
                       }`}>
                         <CardContent className="pt-6">
-                          <div className="flex justify-between items-start">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-3 mb-3">
-                                <span className="text-3xl font-bold text-red-600">{request.blood_group}</span>
-                                <div>
-                                  <p className="font-bold text-lg">{request.patient_name || 'Patient'}</p>
-                                  <p className="text-sm text-gray-600">{request.hospital_name}</p>
+                          <div className="flex flex-col sm:flex-row sm:justify-between gap-4">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 sm:gap-3 mb-3">
+                                <span className="text-2xl sm:text-3xl font-bold text-red-600">{request.blood_group}</span>
+                                <div className="min-w-0 flex-1">
+                                  <p className="font-bold text-base sm:text-lg truncate">{request.patient_name || 'Patient'}</p>
+                                  <p className="text-xs sm:text-sm text-gray-600 truncate">{request.hospital_name}</p>
                                 </div>
                               </div>
                               
-                              <div className="grid grid-cols-2 gap-3 text-sm mb-3">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-xs sm:text-sm mb-3">
                                 <div className="flex items-center gap-2">
                                   <Droplet className="w-4 h-4 text-gray-400" />
                                   <span>{request.units_needed} units needed</span>
@@ -460,8 +499,8 @@ const AdminDashboard = () => {
                               </div>
                             </div>
 
-                            <div className="flex flex-col items-end gap-2 ml-4">
-                              <div className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            <div className="flex flex-row sm:flex-col items-start sm:items-end gap-2 sm:ml-4 w-full sm:w-auto">
+                              <div className={`px-2 sm:px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
                                 request.status === 'active' ? 'bg-red-100 text-red-700' :
                                 request.status === 'fulfilled' ? 'bg-green-100 text-green-700' :
                                 'bg-gray-100 text-gray-700'
@@ -473,10 +512,10 @@ const AdminDashboard = () => {
                               </div>
 
                               {request.status === 'active' && (
-                                <div className="flex flex-col gap-2">
+                                <div className="flex flex-row sm:flex-col gap-2 flex-1 sm:flex-initial">
                                   <Button 
                                     size="sm" 
-                                    className="bg-green-600 hover:bg-green-700"
+                                    className="bg-green-600 hover:bg-green-700 flex-1 sm:flex-initial text-xs sm:text-sm"
                                     onClick={() => handleFulfillRequest(request.id)}
                                   >
                                     <CheckCircle className="w-3 h-3 mr-1" />
@@ -485,7 +524,7 @@ const AdminDashboard = () => {
                                   <Button 
                                     size="sm" 
                                     variant="outline" 
-                                    className="border-red-600 text-red-600 hover:bg-red-50"
+                                    className="border-red-600 text-red-600 hover:bg-red-50 flex-1 sm:flex-initial text-xs sm:text-sm"
                                     onClick={() => handleCancelRequest(request.id)}
                                   >
                                     <XCircle className="w-3 h-3 mr-1" />
@@ -505,12 +544,12 @@ const AdminDashboard = () => {
 
             <Dialog open={urgentDialogOpen} onOpenChange={setUrgentDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-red-600 hover:bg-red-700">
+                <Button className="bg-red-600 hover:bg-red-700 w-full sm:w-auto text-sm md:text-base">
                   <AlertCircle className="w-4 h-4 mr-2" />
                   Create Urgent Request
                 </Button>
               </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2 text-xl">
                   <AlertCircle className="w-6 h-6 text-red-600" />
@@ -519,7 +558,7 @@ const AdminDashboard = () => {
               </DialogHeader>
               
               <div className="space-y-4 mt-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="patient-name">Patient Name *</Label>
                     <Input
@@ -548,7 +587,7 @@ const AdminDashboard = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="units">Units Needed *</Label>
                     <Input
@@ -588,7 +627,7 @@ const AdminDashboard = () => {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="city">City *</Label>
                     <Input
@@ -646,7 +685,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Statistics Cards */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
           <Card className="shadow-lg border-t-4 border-t-blue-500">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-gray-600">Total Donors</CardTitle>
@@ -696,7 +735,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Search Card */}
-        <Card className="mb-8 shadow-lg">
+        <Card id="donors" className="mb-8 shadow-lg scroll-mt-20">
           <CardHeader className="bg-gradient-to-r from-red-500 to-pink-500 text-white">
             <CardTitle className="flex items-center gap-2">
               <Search className="w-5 h-5" />
@@ -704,7 +743,7 @@ const AdminDashboard = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
-            <div className="grid md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="bloodGroup">Blood Group</Label>
                 <Select value={searchBloodGroup} onValueChange={setSearchBloodGroup}>
@@ -730,7 +769,7 @@ const AdminDashboard = () => {
                 />
               </div>
 
-              <div className="space-y-2 flex items-end md:col-span-2">
+              <div className="space-y-2 flex items-end sm:col-span-2">
                 <Button onClick={handleSearch} className="w-full">
                   <Search className="w-4 h-4 mr-2" />
                   Search Donors
@@ -742,7 +781,7 @@ const AdminDashboard = () => {
 
         {/* Search Results */}
         {donors.length > 0 && (
-          <div className="grid lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
             <Card className="shadow-lg">
               <CardHeader className="bg-gray-50">
                 <CardTitle>Search Results ({donors.length})</CardTitle>

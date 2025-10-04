@@ -35,6 +35,7 @@ const UserDashboard = () => {
   const [donor, setDonor] = useState<DonorProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('dashboard');
   const [urgentRequests, setUrgentRequests] = useState<UrgentRequest[]>([]);
   const [userLocation, setUserLocation] = useState<string>('');
 
@@ -113,6 +114,15 @@ const UserDashboard = () => {
     }
   };
 
+  const scrollToSection = (sectionId: string) => {
+    setActiveSection(sectionId);
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    setMobileMenuOpen(false);
+  };
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate('/login');
@@ -183,11 +193,25 @@ const UserDashboard = () => {
 
             {/* Desktop Menu */}
             <div className="hidden md:flex items-center gap-6">
-              <button className="flex items-center gap-2 text-gray-700 hover:text-red-500 transition-colors">
+              <button 
+                onClick={() => scrollToSection('dashboard')} 
+                className={`flex items-center gap-2 transition-colors ${
+                  activeSection === 'dashboard' 
+                    ? 'text-red-500 font-semibold' 
+                    : 'text-gray-700 hover:text-red-500'
+                }`}
+              >
                 <Activity className="w-5 h-5" />
                 <span>Dashboard</span>
               </button>
-              <button className="flex items-center gap-2 text-gray-700 hover:text-red-500 transition-colors relative">
+              <button 
+                onClick={() => scrollToSection('notifications')} 
+                className={`flex items-center gap-2 transition-colors relative ${
+                  activeSection === 'notifications' 
+                    ? 'text-red-500 font-semibold' 
+                    : 'text-gray-700 hover:text-red-500'
+                }`}
+              >
                 <Bell className="w-5 h-5" />
                 <span>Notifications</span>
                 {localRequests.length > 0 && (
@@ -196,7 +220,14 @@ const UserDashboard = () => {
                   </span>
                 )}
               </button>
-              <button className="flex items-center gap-2 text-gray-700 hover:text-red-500 transition-colors">
+              <button 
+                onClick={() => scrollToSection('profile')} 
+                className={`flex items-center gap-2 transition-colors ${
+                  activeSection === 'profile' 
+                    ? 'text-red-500 font-semibold' 
+                    : 'text-gray-700 hover:text-red-500'
+                }`}
+              >
                 <User className="w-5 h-5" />
                 <span>Profile</span>
               </button>
@@ -219,15 +250,36 @@ const UserDashboard = () => {
           {mobileMenuOpen && (
             <div className="md:hidden py-4 border-t">
               <div className="flex flex-col gap-4">
-                <button className="flex items-center gap-2 text-gray-700">
+                <button 
+                  onClick={() => scrollToSection('dashboard')} 
+                  className={`flex items-center gap-2 ${
+                    activeSection === 'dashboard' 
+                      ? 'text-red-500 font-semibold' 
+                      : 'text-gray-700'
+                  }`}
+                >
                   <Activity className="w-5 h-5" />
                   <span>Dashboard</span>
                 </button>
-                <button className="flex items-center gap-2 text-gray-700">
+                <button 
+                  onClick={() => scrollToSection('notifications')} 
+                  className={`flex items-center gap-2 ${
+                    activeSection === 'notifications' 
+                      ? 'text-red-500 font-semibold' 
+                      : 'text-gray-700'
+                  }`}
+                >
                   <Bell className="w-5 h-5" />
                   <span>Notifications</span>
                 </button>
-                <button className="flex items-center gap-2 text-gray-700">
+                <button 
+                  onClick={() => scrollToSection('profile')} 
+                  className={`flex items-center gap-2 ${
+                    activeSection === 'profile' 
+                      ? 'text-red-500 font-semibold' 
+                      : 'text-gray-700'
+                  }`}
+                >
                   <User className="w-5 h-5" />
                   <span>Profile</span>
                 </button>
@@ -244,7 +296,7 @@ const UserDashboard = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section with Badges */}
-        <div className="mb-8">
+        <div id="dashboard" className="mb-8 scroll-mt-20">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
             Welcome back, {donor?.full_name}! 👋
           </h1>
@@ -274,7 +326,7 @@ const UserDashboard = () => {
 
         {/* Urgent Blood Requests in Your Area */}
         {localRequests.length > 0 && (
-          <Card className="mb-8 border-red-200 bg-red-50">
+          <Card id="notifications" className="mb-8 border-red-200 bg-red-50 scroll-mt-20">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-red-700">
                 <Heart className="w-6 h-6 animate-pulse" />
@@ -327,7 +379,7 @@ const UserDashboard = () => {
         )}
 
         {/* Profile and Status Cards */}
-        <div className="grid lg:grid-cols-2 gap-6">
+        <div id="profile" className="grid lg:grid-cols-2 gap-6 scroll-mt-20">
           {/* Profile Card */}
           <Card className="shadow-lg">
             <CardHeader className="bg-gradient-to-r from-red-500 to-pink-500 text-white">
