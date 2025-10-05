@@ -4,10 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Droplet, Shield, User } from 'lucide-react';
+import { Droplet, User } from 'lucide-react';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -20,9 +19,8 @@ const Login = () => {
   const [userFullName, setUserFullName] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   
-  // Admin login state
-  const [adminEmail, setAdminEmail] = useState('');
-  const [adminPassword, setAdminPassword] = useState('');
+  // unified login state
+  // admin users will simply sign in with the same form; after sign-in we check role
 
   const handleUserAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,7 +56,7 @@ const Login = () => {
         setUserEmail('');
         setUserPassword('');
       } else {
-        // Sign in existing user
+        // Sign in existing user (could be admin or donor)
         const { error } = await supabase.auth.signInWithPassword({
           email: userEmail,
           password: userPassword,
@@ -66,11 +64,28 @@ const Login = () => {
 
         if (error) throw error;
 
-        // Check if user has donor profile
+        // Get current user
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
+        if (!currentUser) throw new Error('Authentication failed');
+
+        // Check if user has admin role
+        const { data: role } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', currentUser.id)
+          .eq('role', 'admin')
+          .maybeSingle();
+
+        if (role) {
+          navigate('/admin');
+          return;
+        }
+
+        // Not admin -> check donor profile
         const { data: donor } = await supabase
           .from('donors')
           .select('id')
-          .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
+          .eq('user_id', currentUser.id)
           .maybeSingle();
 
         if (!donor) {
@@ -90,48 +105,6 @@ const Login = () => {
     }
   };
 
-  const handleAdminLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: adminEmail,
-        password: adminPassword,
-      });
-
-      if (error) throw error;
-
-      // Check if the signed-in user has an admin role
-      const currentUser = (await supabase.auth.getUser()).data.user;
-      if (!currentUser) {
-        await supabase.auth.signOut();
-        throw new Error('Authentication failed');
-      }
-
-      const { data: role } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', currentUser.id)
-        .eq('role', 'admin')
-        .maybeSingle();
-
-      if (!role) {
-        await supabase.auth.signOut();
-        throw new Error('Not authorized as admin');
-      }
-
-      navigate('/admin');
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'var(--gradient-secondary)' }}>
@@ -144,120 +117,66 @@ const Login = () => {
           <p className="text-muted-foreground">Save lives by donating blood</p>
         </div>
 
-        <Tabs defaultValue="user" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-4">
-            <TabsTrigger value="user" className="gap-2">
-              <User className="w-4 h-4" />
-              User
-            </TabsTrigger>
-            <TabsTrigger value="admin" className="gap-2">
-              <Shield className="w-4 h-4" />
-              Admin
-            </TabsTrigger>
-          </TabsList>
+        <Card>
+          <CardHeader>
+            <CardTitle>{isSignUp ? 'Create Account' : 'Sign In'}</CardTitle>
+            <CardDescription>
+              {isSignUp ? 'Register as a blood donor' : 'Sign in to your account'}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleUserAuth} className="space-y-4">
+              {isSignUp && (
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Full Name</Label>
+                  <Input
+                    id="fullName"
+                    placeholder="John Doe"
+                    value={userFullName}
+                    onChange={(e) => setUserFullName(e.target.value)}
+                    required
+                  />
+                </div>
+              )}
 
-          <TabsContent value="user">
-            <Card>
-              <CardHeader>
-                <CardTitle>{isSignUp ? 'Create Account' : 'User Login'}</CardTitle>
-                <CardDescription>
-                  {isSignUp ? 'Register as a blood donor' : 'Sign in to your account'}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleUserAuth} className="space-y-4">
-                  {isSignUp && (
-                    <div className="space-y-2">
-                      <Label htmlFor="fullName">Full Name</Label>
-                      <Input
-                        id="fullName"
-                        placeholder="John Doe"
-                        value={userFullName}
-                        onChange={(e) => setUserFullName(e.target.value)}
-                        required
-                      />
-                    </div>
-                  )}
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="userEmail">Email</Label>
-                    <Input
-                      id="userEmail"
-                      type="email"
-                      placeholder="user@example.com"
-                      value={userEmail}
-                      onChange={(e) => setUserEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="userPassword">Password</Label>
-                    <Input
-                      id="userPassword"
-                      type="password"
-                      value={userPassword}
-                      onChange={(e) => setUserPassword(e.target.value)}
-                      required
-                    />
-                  </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={userEmail}
+                  onChange={(e) => setUserEmail(e.target.value)}
+                  required
+                />
+              </div>
 
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Please wait...' : isSignUp ? 'Sign Up' : 'Sign In'}
-                  </Button>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={userPassword}
+                  onChange={(e) => setUserPassword(e.target.value)}
+                  required
+                />
+              </div>
 
-                  <Button
-                    type="button"
-                    variant="link"
-                    className="w-full"
-                    onClick={() => setIsSignUp(!isSignUp)}
-                  >
-                    {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? 'Please wait...' : isSignUp ? 'Sign Up' : 'Sign In'}
+              </Button>
 
-          <TabsContent value="admin">
-            <Card>
-              <CardHeader>
-                <CardTitle>Admin Login</CardTitle>
-                <CardDescription>Access the admin dashboard</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleAdminLogin} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="adminEmail">Admin Email</Label>
-                    <Input
-                      id="adminEmail"
-                      type="email"
-                      placeholder="admin@example.com"
-                      value={adminEmail}
-                      onChange={(e) => setAdminEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="adminPassword">Admin Password</Label>
-                    <Input
-                      id="adminPassword"
-                      type="password"
-                      value={adminPassword}
-                      onChange={(e) => setAdminPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Please wait...' : 'Sign In as Admin'}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+              <Button
+                type="button"
+                variant="link"
+                className="w-full"
+                onClick={() => setIsSignUp(!isSignUp)}
+              >
+                {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
