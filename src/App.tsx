@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import RegisterDonor from "./pages/RegisterDonor";
 import UserDashboard from "./pages/UserDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import Achievements from "./pages/Achievements";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/register-donor" element={<RegisterDonor />} />
             <Route path="/dashboard" element={<UserDashboard />} />
+            <Route path="/achievements" element={<Achievements />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
