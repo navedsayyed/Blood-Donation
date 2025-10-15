@@ -5,11 +5,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { HashRouter as Router } from "react-router-dom"; // ✅ only HashRouter
 import { AuthProvider } from "./contexts/AuthContext";
+import Home from "./pages/Home";
 import Login from "./pages/Login";
 import RegisterDonor from "./pages/RegisterDonor";
 import UserDashboard from "./pages/UserDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import Achievements from "./pages/Achievements";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,11 +24,12 @@ const App = () => (
       <Router>  {/* ✅ use HashRouter here */}
         <AuthProvider>
           <Routes>
-            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register-donor" element={<RegisterDonor />} />
             <Route path="/dashboard" element={<UserDashboard />} />
             <Route path="/achievements" element={<Achievements />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
