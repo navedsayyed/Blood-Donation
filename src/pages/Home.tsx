@@ -8,6 +8,56 @@ const Home = () => {
   const navigate = useNavigate();
   const [selectedBloodType, setSelectedBloodType] = useState('A+');
   const [selectedDonationType, setSelectedDonationType] = useState('red-blood-cells');
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Slideshow images - replace these paths with your actual image paths
+  const donationProcessImages = [
+    { 
+      src: '/images/donation-step-1.jpg', 
+      alt: 'Friendly phlebotomist greeting a smiling donor',
+      caption: 'Step 1: Warm Welcome'
+    },
+    { 
+      src: '/images/donation-step-2.jpg', 
+      alt: 'Donor comfortably seated during donation',
+      caption: 'Step 2: Comfortable Process'
+    },
+    { 
+      src: '/images/donation-step-3.jpg', 
+      alt: 'Blood donation in progress',
+      caption: 'Step 3: Making a Difference'
+    },
+    { 
+      src: '/images/donation-step-4.jpg', 
+      alt: 'Donor enjoying refreshments',
+      caption: 'Step 4: Relax & Refresh'
+    },
+    { 
+      src: '/images/donation-step-5.jpg', 
+      alt: 'Donor leaving with accomplishment',
+      caption: 'Step 5: Be a Hero'
+    },
+  ];
+
+  // Auto-advance slideshow every 4 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % donationProcessImages.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [donationProcessImages.length]);
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % donationProcessImages.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + donationProcessImages.length) % donationProcessImages.length);
+  };
+
+  const goToSlide = (index: number) => {
+    setCurrentSlide(index);
+  };
 
   const compatibilityMap: Record<string, { donors: string[]; recipients: string[] }> = {
     'A+': { donors: ['O+', 'O-', 'A+', 'A-'], recipients: ['A+', 'AB+'] },
@@ -86,8 +136,62 @@ const Home = () => {
                 </Button>
               </div>
             </div>
+            
+            {/* Automatic Slideshow */}
             <div className="relative">
-              <img src="/blood-drop-37715.png" alt="Blood donation" className="w-full h-96 object-contain drop-shadow-2xl" />
+              <div className="relative w-full h-96 overflow-hidden rounded-2xl shadow-2xl">
+                {/* Slides */}
+                {donationProcessImages.map((image, index) => (
+                  <div
+                    key={index}
+                    className={`absolute w-full h-full transition-opacity duration-1000 ${
+                      index === currentSlide ? 'opacity-100' : 'opacity-0'
+                    }`}
+                  >
+                    <img
+                      src={image.src}
+                      alt={image.alt}
+                      className="w-full h-full object-cover"
+                    />
+                    {/* Caption overlay */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">
+                      <p className="text-white text-lg font-semibold">{image.caption}</p>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Navigation Arrows */}
+                <button
+                  onClick={prevSlide}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg transition-all"
+                  aria-label="Previous slide"
+                >
+                  <ChevronLeft className="w-6 h-6 text-red-600" />
+                </button>
+                <button
+                  onClick={nextSlide}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg transition-all"
+                  aria-label="Next slide"
+                >
+                  <ChevronRight className="w-6 h-6 text-red-600" />
+                </button>
+
+                {/* Dot Indicators */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                  {donationProcessImages.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => goToSlide(index)}
+                      className={`w-2 h-2 rounded-full transition-all ${
+                        index === currentSlide
+                          ? 'bg-white w-8'
+                          : 'bg-white/50 hover:bg-white/75'
+                      }`}
+                      aria-label={`Go to slide ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
