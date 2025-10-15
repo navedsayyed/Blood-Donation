@@ -202,30 +202,41 @@ const Home = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card className="text-center shadow-lg border-t-4 border-red-600">
-              <CardContent className="pt-8">
-                <Heart className="w-12 h-12 text-red-600 mx-auto mb-4" />
-                <h3 className="text-4xl font-bold text-gray-900 mb-2">3</h3>
-                <p className="text-gray-600">Lives Saved Per Donation</p>
-              </CardContent>
-            </Card>
-            <Card className="text-center shadow-lg border-t-4 border-red-600">
-              <CardContent className="pt-8">
-                <Users className="w-12 h-12 text-red-600 mx-auto mb-4" />
-                <h3 className="text-4xl font-bold text-gray-900 mb-2">1000+</h3>
-                <p className="text-gray-600">Registered Donors</p>
-              </CardContent>
-            </Card>
-            <Card className="text-center shadow-lg border-t-4 border-red-600">
-              <CardContent className="pt-8">
-                <Award className="w-12 h-12 text-red-600 mx-auto mb-4" />
-                <h3 className="text-4xl font-bold text-gray-900 mb-2">5000+</h3>
-                <p className="text-gray-600">Successful Donations</p>
-              </CardContent>
-            </Card>
+      <section className="py-12 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Lives Saved Card */}
+            <div className="bg-white rounded-xl p-6 shadow-md border-2 border-red-100 hover:border-red-300 transition-all hover:shadow-lg">
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-50 mb-4">
+                  <Heart className="w-8 h-8 text-red-600" />
+                </div>
+                <h3 className="text-3xl font-bold text-gray-900 mb-1">3</h3>
+                <p className="text-sm text-gray-600 font-medium">Lives Saved Per Donation</p>
+              </div>
+            </div>
+
+            {/* Registered Donors Card */}
+            <div className="bg-white rounded-xl p-6 shadow-md border-2 border-red-100 hover:border-red-300 transition-all hover:shadow-lg">
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-50 mb-4">
+                  <Users className="w-8 h-8 text-red-600" />
+                </div>
+                <h3 className="text-3xl font-bold text-gray-900 mb-1">1000+</h3>
+                <p className="text-sm text-gray-600 font-medium">Registered Donors</p>
+              </div>
+            </div>
+
+            {/* Successful Donations Card */}
+            <div className="bg-white rounded-xl p-6 shadow-md border-2 border-red-100 hover:border-red-300 transition-all hover:shadow-lg">
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-50 mb-4">
+                  <Award className="w-8 h-8 text-red-600" />
+                </div>
+                <h3 className="text-3xl font-bold text-gray-900 mb-1">5000+</h3>
+                <p className="text-sm text-gray-600 font-medium">Successful Donations</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
