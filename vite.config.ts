@@ -14,6 +14,6 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  // 👇 important for GitHub Pages
-  base: "/Blood-Donation/",
+  // 👇 Use /Blood-Donation/ for production (GitHub Pages), / for development
+  base: mode === 'production' ? "/Blood-Donation/" : "/",
 }));

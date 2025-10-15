@@ -10,7 +10,7 @@ const Home = () => {
   const [selectedDonationType, setSelectedDonationType] = useState('red-blood-cells');
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Slideshow images - replace these paths with your actual image paths
+  // Slideshow images with your donation process photos
   const donationProcessImages = [
     { 
       src: '/images/donation-step-1.jpg', 
@@ -139,12 +139,12 @@ const Home = () => {
             
             {/* Automatic Slideshow */}
             <div className="relative">
-              <div className="relative w-full h-96 overflow-hidden rounded-2xl shadow-2xl">
+              <div className="relative w-full h-96 bg-gray-100 overflow-hidden rounded-2xl shadow-2xl">
                 {/* Slides */}
                 {donationProcessImages.map((image, index) => (
                   <div
                     key={index}
-                    className={`absolute w-full h-full transition-opacity duration-1000 ${
+                    className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ${
                       index === currentSlide ? 'opacity-100' : 'opacity-0'
                     }`}
                   >
@@ -152,10 +152,14 @@ const Home = () => {
                       src={image.src}
                       alt={image.alt}
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        console.error(`Failed to load image: ${image.src}`);
+                        e.currentTarget.src = '/placeholder.svg';
+                      }}
                     />
                     {/* Caption overlay */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">
-                      <p className="text-white text-lg font-semibold">{image.caption}</p>
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent p-6">
+                      <p className="text-white text-xl font-semibold drop-shadow-lg">{image.caption}</p>
                     </div>
                   </div>
                 ))}
@@ -226,23 +230,23 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Learn About Donation Section - matching your screenshot */}
-      <section className="py-20 bg-gray-50">
+      {/* Learn About Donation Section - Compact design */}
+      <section className="py-8 md:py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold text-center text-red-700 mb-12">Learn About Donation</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-center text-red-700 mb-6">Learn About Donation</h2>
           
           {/* Blood Type Selector */}
           <div className="mb-8">
-            <p className="text-center text-gray-600 mb-4">Select your Blood Type</p>
+            <p className="text-center text-gray-700 text-base font-medium mb-4">Select your Blood Type</p>
             <div className="flex flex-wrap justify-center gap-3">
               {['A+', 'O+', 'B+', 'AB+', 'A-', 'O-', 'B-', 'AB-'].map((type) => (
                 <button
                   key={type}
                   onClick={() => setSelectedBloodType(type)}
-                  className={`px-6 py-3 border-2 rounded-lg text-lg font-semibold transition-colors ${
+                  className={`px-6 py-3 border-2 rounded-lg text-lg font-bold transition-all duration-200 ${
                     selectedBloodType === type
-                      ? 'bg-red-600 text-white border-red-600'
-                      : 'bg-white text-gray-800 border-red-600 hover:bg-red-50'
+                      ? 'bg-red-600 text-white border-red-600 shadow-md scale-105'
+                      : 'bg-white text-gray-800 border-red-300 hover:border-red-500 hover:shadow-sm'
                   }`}
                 >
                   {type}
@@ -251,46 +255,66 @@ const Home = () => {
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-8 items-center mt-12">
-            <div className="space-y-6">
-              <Card className="bg-amber-100 border-none shadow-md">
-                <CardContent className="p-8">
-                  <div className="flex items-start gap-4">
-                    <div className="w-16 h-16 rounded-full bg-amber-200 flex items-center justify-center flex-shrink-0">
-                      <Droplet className="w-8 h-8 text-amber-700" />
-                    </div>
-                    <div>
-                      <h3 className="text-2xl font-bold text-gray-900 mb-3">You can take from</h3>
-                      <p className="text-xl font-semibold text-gray-800">
-                        {compatibilityMap[selectedBloodType]?.donors.join(' ') || 'N/A'}
-                      </p>
+          <div className="grid lg:grid-cols-2 gap-6 items-center">
+            {/* Blood Compatibility Cards - Desktop Only */}
+            <div className="hidden lg:block space-y-4">
+              {/* You can take from card */}
+              <div className="bg-gradient-to-r from-orange-100 to-orange-50 rounded-xl p-5 shadow-md border border-orange-200">
+                <div className="flex items-center gap-5">
+                  {/* User silhouette icon */}
+                  <div className="flex-shrink-0">
+                    <div className="relative w-16 h-16">
+                      <div className="absolute top-1 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full bg-orange-300/70"></div>
+                      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-14 h-11 rounded-t-full bg-orange-300/70"></div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-gray-900 mb-2">You can take from</h3>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {compatibilityMap[selectedBloodType]?.donors.join('  ') || 'N/A'}
+                    </p>
+                  </div>
+                </div>
+              </div>
 
-              <Card className="bg-sky-100 border-none shadow-md">
-                <CardContent className="p-8">
-                  <div className="flex items-start gap-4">
-                    <div className="w-16 h-16 rounded-full bg-sky-200 flex items-center justify-center flex-shrink-0">
-                      <Heart className="w-8 h-8 text-sky-700" />
-                    </div>
-                    <div>
-                      <h3 className="text-2xl font-bold text-gray-900 mb-3">You can give to</h3>
-                      <p className="text-xl font-semibold text-gray-800">
-                        {compatibilityMap[selectedBloodType]?.recipients.join(' ') || 'N/A'}
-                      </p>
+              {/* You can give to card */}
+              <div className="bg-gradient-to-r from-blue-100 to-blue-50 rounded-xl p-5 shadow-md border border-blue-200">
+                <div className="flex items-center gap-5">
+                  {/* User silhouette icon */}
+                  <div className="flex-shrink-0">
+                    <div className="relative w-16 h-16">
+                      <div className="absolute top-1 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full bg-blue-300/70"></div>
+                      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-14 h-11 rounded-t-full bg-blue-300/70"></div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-gray-900 mb-2">You can give to</h3>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {compatibilityMap[selectedBloodType]?.recipients.join('  ') || 'N/A'}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div className="relative">
-              <img src="/placeholder.svg" alt="Donation illustration" className="w-full h-auto rounded-lg" />
-              <p className="text-center mt-4 text-lg font-medium">
-                One Blood Donation can save upto <span className="text-red-600 font-bold">Three Lives</span>
-              </p>
+            {/* Image section - visible on all devices */}
+            <div className="relative flex flex-col justify-center">
+              <div className="max-w-md mx-auto lg:mx-0">
+                <div className="relative">
+                  <img 
+                    src="/images/donation-illustration.png" 
+                    alt="Blood donation process illustration" 
+                    className="w-full h-auto rounded-xl shadow-lg"
+                    onError={(e) => {
+                      // Fallback to placeholder if image not found
+                      e.currentTarget.src = '/placeholder.svg';
+                    }}
+                  />
+                </div>
+                <p className="text-center mt-4 text-base font-medium text-gray-700">
+                  One Blood Donation can save upto <span className="text-red-600 font-bold text-lg">Three Lives</span>
+                </p>
+              </div>
             </div>
           </div>
         </div>
