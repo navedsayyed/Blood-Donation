@@ -478,6 +478,17 @@ const Home = () => {
       <footer className="bg-gray-900 text-white py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-gray-400">© 2025 Blood-O. Saving lives, one donation at a time.</p>
+          <p className="text-gray-400">
+            made with ❤️ by the Blood-O Team{' '}
+            <a 
+              href="https://github.com/navedsayyed" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-red-400 hover:text-red-300 font-semibold transition-colors underline decoration-red-400/50 hover:decoration-red-300"
+            >
+              Naved A.Sayyed
+            </a>
+          </p>
         </div>
       </footer>
     </div>
