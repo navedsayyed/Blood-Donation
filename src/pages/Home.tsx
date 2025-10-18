@@ -475,20 +475,43 @@ const Home = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-gray-400">© 2025 Blood-O. Saving lives, one donation at a time.</p>
-          <p className="text-gray-400">
-            made with ❤️ by the Blood-O Team{' '}
-            <a 
-              href="https://github.com/navedsayyed" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-red-400 hover:text-red-300 font-semibold transition-colors underline decoration-red-400/50 hover:decoration-red-300"
-            >
-              Naved A.Sayyed
-            </a>
-          </p>
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center space-y-4">
+            {/* Logo and Brand */}
+            <div className="flex items-center justify-center gap-2 mb-6">
+              <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center">
+                <Droplet className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-xl font-bold text-white">Blood-O</span>
+            </div>
+            
+            {/* Tagline */}
+            <p className="text-gray-300 text-lg font-medium">
+              Saving lives, one donation at a time.
+            </p>
+            
+            {/* Divider */}
+            <div className="max-w-xs mx-auto border-t border-gray-700 my-6"></div>
+            
+            {/* Copyright and Credits */}
+            <div className="space-y-2">
+              <p className="text-gray-400 text-sm">
+                © 2025 Blood-O. All rights reserved.
+              </p>
+              <p className="text-gray-400 text-sm">
+                Made with <span className="text-red-500">❤</span> by{' '}
+                <a 
+                  href="https://github.com/navedsayyed" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-white font-semibold hover:text-red-400 transition-colors"
+                >
+                  Naved A. Sayyed
+                </a>
+              </p>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
