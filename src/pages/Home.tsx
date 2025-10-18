@@ -13,27 +13,27 @@ const Home = () => {
   // Slideshow images with your donation process photos
   const donationProcessImages = [
     { 
-      src: '/images/donation-step-1.jpg', 
+      src: `${import.meta.env.BASE_URL}images/donation-step-1.jpg`, 
       alt: 'Friendly phlebotomist greeting a smiling donor',
       caption: 'Step 1: Warm Welcome'
     },
     { 
-      src: '/images/donation-step-2.jpg', 
+      src: `${import.meta.env.BASE_URL}images/donation-step-2.jpg`, 
       alt: 'Donor comfortably seated during donation',
       caption: 'Step 2: Comfortable Process'
     },
     { 
-      src: '/images/donation-step-3.jpg', 
+      src: `${import.meta.env.BASE_URL}images/donation-step-3.jpg`, 
       alt: 'Blood donation in progress',
       caption: 'Step 3: Making a Difference'
     },
     { 
-      src: '/images/donation-step-4.jpg', 
+      src: `${import.meta.env.BASE_URL}images/donation-step-4.jpg`, 
       alt: 'Donor enjoying refreshments',
       caption: 'Step 4: Relax & Refresh'
     },
     { 
-      src: '/images/donation-step-5.jpg', 
+      src: `${import.meta.env.BASE_URL}images/donation-step-5.jpg`, 
       alt: 'Donor leaving with accomplishment',
       caption: 'Step 5: Be a Hero'
     },
@@ -313,7 +313,7 @@ const Home = () => {
               <div className="max-w-md mx-auto lg:mx-0">
                 <div className="relative">
                   <img 
-                    src="/images/donation-illustration.png" 
+                    src={`${import.meta.env.BASE_URL}images/donation-illustration.png`}
                     alt="Blood donation process illustration" 
                     className="w-full h-auto rounded-xl shadow-lg"
                     onError={(e) => {
