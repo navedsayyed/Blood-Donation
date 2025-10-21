@@ -95,19 +95,27 @@ const Home = () => {
     <div className="min-h-screen bg-white">
       {/* Navigation Bar */}
       <nav className="bg-red-600 shadow-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
-                <Droplet className="w-6 h-6 text-red-600" />
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white flex items-center justify-center">
+                <Droplet className="w-5 h-5 sm:w-6 sm:h-6 text-red-600" />
               </div>
-              <span className="text-xl font-bold text-white">Blood-O</span>
+              <span className="text-lg sm:text-xl font-bold text-white whitespace-nowrap">Blood-O</span>
             </div>
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" onClick={() => navigate('/register-donor')} className="text-white hover:bg-white/20">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <Button 
+                variant="ghost" 
+                onClick={() => navigate('/register-donor')} 
+                className="text-white hover:bg-white/20 text-xs sm:text-sm px-2 sm:px-4 whitespace-nowrap"
+              >
                 Register as Donor
               </Button>
-              <Button variant="ghost" onClick={() => navigate('/login')} className="text-white hover:bg-white/20">
+              <Button 
+                variant="ghost" 
+                onClick={() => navigate('/login')} 
+                className="text-white hover:bg-white/20 text-xs sm:text-sm px-2 sm:px-4"
+              >
                 Login
               </Button>
             </div>
