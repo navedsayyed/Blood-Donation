@@ -266,9 +266,9 @@ const Home = () => {
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-6 items-center">
-            {/* Blood Compatibility Cards - Desktop Only */}
-            <div className="hidden lg:block space-y-4">
+          <div className="grid lg:grid-cols-2 gap-6 items-start">
+            {/* Blood Compatibility Cards - Visible on all devices */}
+            <div className="space-y-4 order-1 lg:order-1">
               {/* You can take from card */}
               <div className="bg-gradient-to-r from-orange-100 to-orange-50 rounded-xl p-5 shadow-md border border-orange-200">
                 <div className="flex items-center gap-5">
@@ -309,7 +309,7 @@ const Home = () => {
             </div>
 
             {/* Image section - visible on all devices */}
-            <div className="relative flex flex-col justify-center">
+            <div className="relative flex flex-col justify-center order-2 lg:order-2">
               <div className="max-w-md mx-auto lg:mx-0">
                 <div className="relative">
                   <img 
