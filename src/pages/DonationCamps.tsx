@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -32,6 +32,13 @@ const DonationCamps = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'upcoming' | 'ongoing' | 'completed'>('upcoming');
 
+  const tabs: { value: 'all' | 'upcoming' | 'ongoing' | 'completed'; label: string }[] = [
+    { value: 'all', label: 'All Camps' },
+    { value: 'upcoming', label: 'Upcoming' },
+    { value: 'ongoing', label: 'Ongoing' },
+    { value: 'completed', label: 'Completed' },
+  ];
+
   useEffect(() => {
     fetchCamps();
 
@@ -49,7 +56,7 @@ const DonationCamps = () => {
     return () => {
       campsSubscription.unsubscribe();
     };
-  }, [filter]);
+  }, []);
 
   const fetchCamps = async () => {
     try {
@@ -127,38 +134,101 @@ const DonationCamps = () => {
     return icons[facility] || '✓';
   };
 
+  const statusCounts = useMemo(() => {
+    const upcoming = camps.filter((camp) => camp.status === 'Upcoming').length;
+    const ongoing = camps.filter((camp) => camp.status === 'Ongoing').length;
+    const completed = camps.filter((camp) => camp.status === 'Completed').length;
+
+    return {
+      all: camps.length,
+      upcoming,
+      ongoing,
+      completed,
+    };
+  }, [camps]);
+
+  const filteredCamps = useMemo(() => {
+    if (filter === 'all') {
+      return camps;
+    }
+
+    const statusMap: Record<typeof filter, DonationCamp['status']> = {
+      all: 'Upcoming',
+      upcoming: 'Upcoming',
+      ongoing: 'Ongoing',
+      completed: 'Completed',
+    };
+
+    return camps.filter((camp) => camp.status === statusMap[filter]);
+  }, [camps, filter]);
+
+  const getEmptyStateMessage = () => {
+    switch (filter) {
+      case 'upcoming':
+        return 'There are no upcoming donation camps at the moment.';
+      case 'ongoing':
+        return 'No camp is currently active right now.';
+      case 'completed':
+        return 'No completed camps are available yet.';
+      default:
+        return 'No camps match your filter criteria.';
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="relative min-h-screen bg-gradient-to-b from-red-50 via-white to-pink-50 overflow-hidden">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-24 -left-20 h-72 w-72 rounded-full bg-red-200/30 blur-3xl" />
+        <div className="absolute top-40 right-0 h-64 w-64 rounded-full bg-rose-200/30 blur-3xl" />
+      </div>
+
       {/* Header */}
-      <div className="bg-gradient-to-r from-red-600 to-red-700 text-white py-16">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative pt-6 sm:pt-10 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto rounded-3xl bg-gradient-to-r from-red-700 via-red-600 to-red-500 text-white p-6 sm:p-10 shadow-2xl">
           <div className="text-center">
-            <Droplet className="w-16 h-16 mx-auto mb-4" />
-            <h1 className="text-4xl font-bold mb-4">Blood Donation Camps</h1>
-            <p className="text-xl text-red-100 max-w-2xl mx-auto">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-3">Blood Donation Camps</h1>
+            <p className="text-base sm:text-lg text-red-100 max-w-2xl mx-auto">
               Join organized blood donation camps in your area and save lives
             </p>
+
+            <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+              <div className="rounded-xl bg-white/15 px-3 py-2 border border-white/10">
+                <p className="text-red-100">Total Camps</p>
+                <p className="text-xl font-semibold">{statusCounts.all}</p>
+              </div>
+              <div className="rounded-xl bg-white/15 px-3 py-2 border border-white/10">
+                <p className="text-red-100">Upcoming</p>
+                <p className="text-xl font-semibold">{statusCounts.upcoming}</p>
+              </div>
+              <div className="rounded-xl bg-white/15 px-3 py-2 border border-white/10">
+                <p className="text-red-100">Ongoing</p>
+                <p className="text-xl font-semibold">{statusCounts.ongoing}</p>
+              </div>
+              <div className="rounded-xl bg-white/15 px-3 py-2 border border-white/10">
+                <p className="text-red-100">Completed</p>
+                <p className="text-xl font-semibold">{statusCounts.completed}</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Filter Tabs */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex gap-2 py-4 overflow-x-auto">
-            {[
-              { value: 'all', label: 'All Camps' },
-              { value: 'upcoming', label: 'Upcoming' },
-              { value: 'ongoing', label: 'Ongoing' },
-              { value: 'completed', label: 'Completed' },
-            ].map((tab) => (
+      <div className="relative px-4 sm:px-6 lg:px-8 mt-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex gap-2 p-2 bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm border overflow-x-auto">
+            {tabs.map((tab) => (
               <Button
                 key={tab.value}
                 variant={filter === tab.value ? 'default' : 'outline'}
-                onClick={() => setFilter(tab.value as any)}
-                className={filter === tab.value ? 'bg-red-600 hover:bg-red-700' : ''}
+                onClick={() => setFilter(tab.value)}
+                className={`rounded-xl whitespace-nowrap ${
+                  filter === tab.value
+                    ? 'bg-red-600 hover:bg-red-700 shadow'
+                    : 'bg-white text-gray-700 hover:text-red-700 hover:border-red-200'
+                }`}
               >
-                {tab.label}
+                {tab.label} ({statusCounts[tab.value]})
               </Button>
             ))}
           </div>
@@ -166,40 +236,37 @@ const DonationCamps = () => {
       </div>
 
       {/* Camps List */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
         {loading ? (
-          <div className="text-center py-12">
+          <div className="text-center py-14">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
             <p className="mt-4 text-gray-600">Loading donation camps...</p>
           </div>
-        ) : camps.length === 0 ? (
-          <Card className="text-center py-12">
+        ) : filteredCamps.length === 0 ? (
+          <Card className="text-center py-12 border-2 border-dashed bg-white/80 backdrop-blur-sm">
             <CardContent className="pt-6">
               <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-900 mb-2">No camps found</h3>
-              <p className="text-gray-600 mb-6">
-                {filter === 'upcoming'
-                  ? 'There are no upcoming donation camps at the moment.'
-                  : 'No camps match your filter criteria.'}
-              </p>
+              <p className="text-gray-600 mb-6">{getEmptyStateMessage()}</p>
               <Button
                 onClick={() => setFilter('all')}
                 variant="outline"
+                className="hover:border-red-200 hover:text-red-700"
               >
                 View All Camps
               </Button>
             </CardContent>
           </Card>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2">
-            {camps.map((camp) => (
+          <div className="grid gap-5 sm:gap-6 md:grid-cols-2">
+            {filteredCamps.map((camp) => (
               <Card
                 key={camp.id}
-                className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-red-200"
+                className="group cursor-pointer border border-red-100/80 bg-white/90 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-red-200"
               >
                 <CardHeader>
                   <div className="flex justify-between items-start mb-2">
-                    <CardTitle className="text-xl text-gray-900">
+                    <CardTitle className="text-lg sm:text-xl text-gray-900 leading-tight">
                       {camp.camp_name}
                     </CardTitle>
                     <Badge className={`${getStatusColor(camp.status)} border`}>
@@ -238,15 +305,15 @@ const DonationCamps = () => {
                   </div>
 
                   {/* Stats */}
-                  <div className="flex items-center gap-4 pt-2 border-t">
-                    <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-4 pt-2 border-t">
+                    <div className="flex items-center gap-2 rounded-lg bg-gray-50 px-2.5 py-1.5">
                       <Users className="w-4 h-4 text-gray-600" />
                       <span className="text-sm text-gray-600">
                         {camp.actual_donors}/{camp.expected_donors} donors
                       </span>
                     </div>
                     {camp.units_collected > 0 && (
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 rounded-lg bg-red-50 px-2.5 py-1.5">
                         <Droplet className="w-4 h-4 text-red-600" />
                         <span className="text-sm text-gray-600">
                           {camp.units_collected} units
@@ -303,7 +370,7 @@ const DonationCamps = () => {
                       disabled={camp.status !== 'Upcoming'}
                     >
                       {camp.status === 'Upcoming' ? 'Register Now' : 'View Details'}
-                      <ArrowRight className="w-4 h-4 ml-2" />
+                      <ArrowRight className="w-4 h-4 ml-2 transition-transform duration-300 group-hover:translate-x-1" />
                     </Button>
                   </div>
                 </CardContent>
@@ -314,16 +381,16 @@ const DonationCamps = () => {
       </div>
 
       {/* CTA Section */}
-      <div className="bg-gradient-to-r from-red-600 to-red-700 text-white py-16">
+      <div className="relative mt-4 bg-gradient-to-r from-red-700 to-red-600 text-white py-14 sm:py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold mb-4">Want to Organize a Camp?</h2>
-          <p className="text-xl text-red-100 mb-8">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-4">Want to Organize a Camp?</h2>
+          <p className="text-base sm:text-xl text-red-100 mb-8">
             Contact our admin team to organize a blood donation camp at your organization
           </p>
           <Button
             size="lg"
             variant="outline"
-            className="bg-white text-red-600 hover:bg-red-50"
+            className="bg-white text-red-700 hover:bg-red-50 hover:text-red-800"
             onClick={() => navigate('/login')}
           >
             Get Started
