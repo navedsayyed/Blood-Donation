@@ -180,7 +180,8 @@ const DonationCamps = () => {
     logo: {
       title: 'Blood-O',
       url: '/#/',
-      icon: <Droplet className="h-5 w-5" />,
+      src: `${import.meta.env.BASE_URL}blood-o.webp`,
+      alt: 'Blood-O logo',
     },
     tagline: 'Join a camp. Donate blood. Save lives.',
     menuItems: [

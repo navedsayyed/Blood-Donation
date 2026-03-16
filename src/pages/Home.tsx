@@ -161,7 +161,8 @@ const Home = () => {
     logo: {
       title: 'Blood-O',
       url: '/#/',
-      icon: <Droplet className="h-5 w-5" />,
+      src: `${import.meta.env.BASE_URL}blood-o.webp`,
+      alt: 'Blood-O logo',
     },
     tagline: 'Saving lives, one donation at a time.',
     menuItems: [
