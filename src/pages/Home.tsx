@@ -2,42 +2,107 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Droplet, Heart, Users, Award, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Droplet, Heart, Users, Award, ArrowRight, ChevronLeft, ChevronRight, Menu, X } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const Home = () => {
   const navigate = useNavigate();
   const [selectedBloodType, setSelectedBloodType] = useState('A+');
   const [selectedDonationType, setSelectedDonationType] = useState('red-blood-cells');
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
+  
+  // State for real statistics
+  const [stats, setStats] = useState({
+    registeredDonors: 0,
+    totalDonations: 0,
+    livesImpacted: 0,
+    loading: true
+  });
 
   // Slideshow images with your donation process photos
   const donationProcessImages = [
     { 
-      src: `${import.meta.env.BASE_URL}images/donation-step-1.jpg`, 
+      src: `${import.meta.env.BASE_URL}images/donation-step-1.webp`,
       alt: 'Friendly phlebotomist greeting a smiling donor',
       caption: 'Step 1: Warm Welcome'
     },
     { 
-      src: `${import.meta.env.BASE_URL}images/donation-step-2.jpg`, 
+      src: `${import.meta.env.BASE_URL}images/donation-step-2.webp`,
       alt: 'Donor comfortably seated during donation',
       caption: 'Step 2: Comfortable Process'
     },
     { 
-      src: `${import.meta.env.BASE_URL}images/donation-step-3.jpg`, 
+      src: `${import.meta.env.BASE_URL}images/donation-step-3.webp`,
       alt: 'Blood donation in progress',
       caption: 'Step 3: Making a Difference'
     },
     { 
-      src: `${import.meta.env.BASE_URL}images/donation-step-4.jpg`, 
+      src: `${import.meta.env.BASE_URL}images/donation-step-4.webp`,
       alt: 'Donor enjoying refreshments',
       caption: 'Step 4: Relax & Refresh'
     },
     { 
-      src: `${import.meta.env.BASE_URL}images/donation-step-5.jpg`, 
+      src: `${import.meta.env.BASE_URL}images/donation-step-5.webp`,
       alt: 'Donor leaving with accomplishment',
       caption: 'Step 5: Be a Hero'
     },
   ];
+
+  // Fetch real statistics from database
+  useEffect(() => {
+    const fetchStatistics = async () => {
+      try {
+        // Get total registered donors
+        const { count: donorsCount } = await supabase
+          .from('donors')
+          .select('*', { count: 'exact', head: true });
+
+        // Get donors with last donation dates to calculate successful donations
+        const { data: donorsData } = await supabase
+          .from('donors')
+          .select('last_donation_date');
+        
+        // Count successful donations (donors who have donated at least once)
+        const totalDonations = donorsData?.filter(donor => donor.last_donation_date !== null).length || 0;
+
+        // Calculate lives impacted (each donation saves ~3 lives on average)
+        const livesImpacted = totalDonations * 3;
+
+        setStats({
+          registeredDonors: donorsCount || 0,
+          totalDonations: totalDonations,
+          livesImpacted: livesImpacted,
+          loading: false
+        });
+      } catch (error) {
+        console.error('Error fetching statistics:', error);
+        setStats({
+          registeredDonors: 0,
+          totalDonations: 0,
+          livesImpacted: 0,
+          loading: false
+        });
+      }
+    };
+
+    fetchStatistics();
+
+    // Set up real-time subscription for updates
+    const donorsSubscription = supabase
+      .channel('donors-stats-changes')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'donors' },
+        () => {
+          fetchStatistics();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      donorsSubscription.unsubscribe();
+    };
+  }, []);
 
   // Auto-advance slideshow every 4 seconds
   useEffect(() => {
@@ -96,32 +161,60 @@ const Home = () => {
       {/* Navigation Bar */}
       <nav className="bg-red-600 shadow-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white flex items-center justify-center">
-                <Droplet className="w-5 h-5 sm:w-6 sm:h-6 text-red-600" />
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <div className="flex items-center gap-2">
+              <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center overflow-hidden">
+                <img src="/blood-o.webp" alt="Blood-O logo" className="w-full h-full object-contain" />
               </div>
-              <span className="text-lg sm:text-xl font-bold text-white whitespace-nowrap">Blood-O</span>
+              <span className="text-xl font-bold text-white whitespace-nowrap">Blood-O</span>
             </div>
-            <div className="flex items-center gap-2 sm:gap-4">
-              <Button 
-                variant="ghost" 
-                onClick={() => navigate('/register-donor')} 
-                className="text-white hover:bg-white/20 text-xs sm:text-sm px-2 sm:px-4 whitespace-nowrap"
+
+            {/* Desktop nav links */}
+            <div className="hidden md:flex items-center gap-2">
+              <Button variant="ghost" onClick={() => navigate('/donation-camps')} className="text-white hover:bg-white/20 text-sm px-4">Donation Camps</Button>
+              <Button variant="ghost" onClick={() => navigate('/register-donor')} className="text-white hover:bg-white/20 text-sm px-4">Register</Button>
+              <Button variant="ghost" onClick={() => navigate('/login')} className="text-white hover:bg-white/20 text-sm px-4">Login</Button>
+            </div>
+
+            {/* Mobile hamburger */}
+            <button
+              className="md:hidden text-white p-2"
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label="Toggle menu"
+            >
+              {menuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
+        </div>
+
+      </nav>
+
+      {/* Mobile floating menu — outside nav so it overlays content */}
+      {menuOpen && (
+        <div className="md:hidden fixed top-20 left-3 right-3 z-40 flex flex-col gap-3 animate-in slide-in-from-top-2 duration-200">
+          {/* Nav links card */}
+          <div className="bg-red-600 rounded-2xl px-4 py-2 shadow-2xl flex flex-col">
+            <button onClick={() => { navigate('/donation-camps'); setMenuOpen(false); }} className="text-left text-white font-semibold tracking-wide py-4 border-b border-white/30 hover:text-red-100 transition-colors">
+              DONATION CAMPS
+            </button>
+            <button onClick={() => { navigate('/register-donor'); setMenuOpen(false); }} className="text-left text-white font-semibold tracking-wide py-4 border-b border-white/30 hover:text-red-100 transition-colors">
+              REGISTER
+            </button>
+            <button onClick={() => { navigate('/login'); setMenuOpen(false); }} className="text-left text-white font-semibold tracking-wide py-4 hover:text-red-100 transition-colors">
+              LOGIN
+            </button>
+            <div className="pb-3 pt-2">
+              <Button
+                onClick={() => { navigate('/register-donor'); setMenuOpen(false); }}
+                className="w-full bg-white text-red-600 hover:bg-red-50 rounded-full py-3 font-bold uppercase tracking-wide"
               >
-                Register as Donor
-              </Button>
-              <Button 
-                variant="ghost" 
-                onClick={() => navigate('/login')} 
-                className="text-white hover:bg-white/20 text-xs sm:text-sm px-2 sm:px-4"
-              >
-                Login
+                Donate Now
               </Button>
             </div>
           </div>
         </div>
-      </nav>
+      )}
 
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-red-50 via-white to-pink-50 py-20">
@@ -213,14 +306,21 @@ const Home = () => {
       <section className="py-12 bg-gray-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-3 gap-6">
-            {/* Lives Saved Card */}
+            {/* Lives Impacted Card */}
             <div className="bg-white rounded-xl p-6 shadow-md border-2 border-red-100 hover:border-red-300 transition-all hover:shadow-lg">
               <div className="text-center">
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-50 mb-4">
                   <Heart className="w-8 h-8 text-red-600" />
                 </div>
-                <h3 className="text-3xl font-bold text-gray-900 mb-1">3</h3>
-                <p className="text-sm text-gray-600 font-medium">Lives Saved Per Donation</p>
+                <h3 className="text-3xl font-bold text-gray-900 mb-1">
+                  {stats.loading ? (
+                    <span className="animate-pulse">...</span>
+                  ) : (
+                    stats.livesImpacted > 0 ? `${stats.livesImpacted}+` : '0'
+                  )}
+                </h3>
+                <p className="text-sm text-gray-600 font-medium">Lives Impacted</p>
+                <p className="text-xs text-gray-400 mt-1">Each donation saves ~3 lives</p>
               </div>
             </div>
 
@@ -230,8 +330,15 @@ const Home = () => {
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-50 mb-4">
                   <Users className="w-8 h-8 text-red-600" />
                 </div>
-                <h3 className="text-3xl font-bold text-gray-900 mb-1">1000+</h3>
+                <h3 className="text-3xl font-bold text-gray-900 mb-1">
+                  {stats.loading ? (
+                    <span className="animate-pulse">...</span>
+                  ) : (
+                    stats.registeredDonors > 0 ? `${stats.registeredDonors}+` : '0'
+                  )}
+                </h3>
                 <p className="text-sm text-gray-600 font-medium">Registered Donors</p>
+                <p className="text-xs text-gray-400 mt-1">Active blood donors</p>
               </div>
             </div>
 
@@ -241,8 +348,15 @@ const Home = () => {
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-50 mb-4">
                   <Award className="w-8 h-8 text-red-600" />
                 </div>
-                <h3 className="text-3xl font-bold text-gray-900 mb-1">5000+</h3>
+                <h3 className="text-3xl font-bold text-gray-900 mb-1">
+                  {stats.loading ? (
+                    <span className="animate-pulse">...</span>
+                  ) : (
+                    stats.totalDonations > 0 ? `${stats.totalDonations}+` : '0'
+                  )}
+                </h3>
                 <p className="text-sm text-gray-600 font-medium">Successful Donations</p>
+                <p className="text-xs text-gray-400 mt-1">Total blood units donated</p>
               </div>
             </div>
           </div>
@@ -321,7 +435,7 @@ const Home = () => {
               <div className="max-w-md mx-auto lg:mx-0">
                 <div className="relative">
                   <img 
-                    src={`${import.meta.env.BASE_URL}images/donation-illustration.png`}
+                    src={`${import.meta.env.BASE_URL}images/donation-illustration.webp`}
                     alt="Blood donation process illustration" 
                     className="w-full h-auto rounded-xl shadow-lg"
                     onError={(e) => {
@@ -488,8 +602,8 @@ const Home = () => {
           <div className="text-center space-y-4">
             {/* Logo and Brand */}
             <div className="flex items-center justify-center gap-2 mb-6">
-              <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center">
-                <Droplet className="w-5 h-5 text-white" />
+              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center overflow-hidden">
+                <img src="/blood-o.webp" alt="Blood-O logo" className="w-full h-full object-contain" />
               </div>
               <span className="text-xl font-bold text-white">Blood-O</span>
             </div>

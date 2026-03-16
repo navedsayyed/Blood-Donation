@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Droplet } from 'lucide-react';
 
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
@@ -109,9 +108,6 @@ const RegisterDonor = () => {
     <div className="min-h-screen p-4 py-8" style={{ background: 'var(--gradient-secondary)' }}>
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4" style={{ background: 'var(--gradient-primary)' }}>
-            <Droplet className="w-8 h-8 text-primary-foreground" />
-          </div>
           <h1 className="text-3xl font-bold text-foreground mb-2">Donor Registration</h1>
           <p className="text-muted-foreground">Complete your profile to become a registered donor</p>
         </div>
