@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Calendar, MapPin, Users, Clock, Building2, ArrowRight, Droplet } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Footer2 } from '@/components/ui/shadcnblocks-com-footer2';
 
 interface DonationCamp {
   id: string;
@@ -173,6 +174,54 @@ const DonationCamps = () => {
       default:
         return 'No camps match your filter criteria.';
     }
+  };
+
+  const campsFooterData = {
+    logo: {
+      title: 'Blood-O',
+      url: '/#/',
+      icon: <Droplet className="h-5 w-5" />,
+    },
+    tagline: 'Join a camp. Donate blood. Save lives.',
+    menuItems: [
+      {
+        title: 'Camps',
+        links: [
+          { text: 'All Camps', url: '/#/donation-camps' },
+          { text: 'Upcoming', url: '/#/donation-camps' },
+          { text: 'Register', url: '/#/register-donor' },
+        ],
+      },
+      {
+        title: 'Account',
+        links: [
+          { text: 'Login', url: '/#/login' },
+          { text: 'Dashboard', url: '/#/dashboard' },
+          { text: 'Profile', url: '/#/profile' },
+        ],
+      },
+      {
+        title: 'Learn',
+        links: [
+          { text: 'Donation Basics', url: '/#/' },
+          { text: 'Blood Compatibility', url: '/#/' },
+          { text: 'Achievements', url: '/#/achievements' },
+        ],
+      },
+      {
+        title: 'Support',
+        links: [
+          { text: 'Contact', url: '/#/login' },
+          { text: 'Terms', url: '#' },
+          { text: 'Privacy', url: '#' },
+        ],
+      },
+    ],
+    copyright: '© 2026 Blood-O. All rights reserved.',
+    bottomLinks: [
+      { text: 'Terms and Conditions', url: '#' },
+      { text: 'Privacy Policy', url: '#' },
+    ],
   };
 
   return (
@@ -397,6 +446,8 @@ const DonationCamps = () => {
           </Button>
         </div>
       </div>
+
+      <Footer2 {...campsFooterData} />
     </div>
   );
 };

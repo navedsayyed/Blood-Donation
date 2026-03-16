@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Droplet, Heart, Users, Award, ArrowRight, ChevronLeft, ChevronRight, Menu, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { Footer2 } from '@/components/ui/shadcnblocks-com-footer2';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -154,6 +155,54 @@ const Home = () => {
       whoCanDonate: 'You need to be 18-65 years old, weight 50kg or more, have good platelet count, and be in excellent health. Platelet donation takes about 2 hours.',
       useFor: 'Cancer patients undergoing chemotherapy, transplant patients, patients with blood disorders, and those undergoing major surgeries.'
     }
+  };
+
+  const homeFooterData = {
+    logo: {
+      title: 'Blood-O',
+      url: '/#/',
+      icon: <Droplet className="h-5 w-5" />,
+    },
+    tagline: 'Saving lives, one donation at a time.',
+    menuItems: [
+      {
+        title: 'Donate',
+        links: [
+          { text: 'Register as Donor', url: '/#/register-donor' },
+          { text: 'Donation Camps', url: '/#/donation-camps' },
+          { text: 'Find Blood Center', url: '/#/register-donor' },
+        ],
+      },
+      {
+        title: 'Account',
+        links: [
+          { text: 'Login', url: '/#/login' },
+          { text: 'Profile', url: '/#/profile' },
+          { text: 'Dashboard', url: '/#/dashboard' },
+        ],
+      },
+      {
+        title: 'Learn',
+        links: [
+          { text: 'Blood Types', url: '#learn-blood-types' },
+          { text: 'Donation Process', url: '#learn-donation-process' },
+          { text: 'Why Donate?', url: '#why-donate' },
+        ],
+      },
+      {
+        title: 'Community',
+        links: [
+          { text: 'Achievements', url: '/#/achievements' },
+          { text: 'Become a Donor', url: '/#/register-donor' },
+          { text: 'Contact Us', url: '/#/login' },
+        ],
+      },
+    ],
+    copyright: '© 2026 Blood-O. All rights reserved.',
+    bottomLinks: [
+      { text: 'Terms and Conditions', url: '#' },
+      { text: 'Privacy Policy', url: '#' },
+    ],
   };
 
   return (
@@ -596,46 +645,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center space-y-4">
-            {/* Logo and Brand */}
-            <div className="flex items-center justify-center gap-2 mb-6">
-              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center overflow-hidden">
-                <img src="/blood-o.webp" alt="Blood-O logo" className="w-full h-full object-contain" />
-              </div>
-              <span className="text-xl font-bold text-white">Blood-O</span>
-            </div>
-            
-            {/* Tagline */}
-            <p className="text-gray-300 text-lg font-medium">
-              Saving lives, one donation at a time.
-            </p>
-            
-            {/* Divider */}
-            <div className="max-w-xs mx-auto border-t border-gray-700 my-6"></div>
-            
-            {/* Copyright and Credits */}
-            <div className="space-y-2">
-              <p className="text-gray-400 text-sm">
-                © 2025 Blood-O. All rights reserved.
-              </p>
-              <p className="text-gray-400 text-sm">
-                Made with <span className="text-red-500">❤</span> by{' '}
-                <a 
-                  href="https://github.com/navedsayyed" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-white font-semibold hover:text-red-400 transition-colors"
-                >
-                  Naved A. Sayyed
-                </a>
-              </p>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer2 {...homeFooterData} />
     </div>
   );
 };
