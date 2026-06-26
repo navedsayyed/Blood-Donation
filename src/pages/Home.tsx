@@ -215,7 +215,7 @@ const Home = () => {
             {/* Logo */}
             <div className="flex items-center gap-2">
               <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center overflow-hidden">
-                <img src="/blood-o.webp" alt="Blood-O logo" className="w-full h-full object-contain" />
+                <img src={`${import.meta.env.BASE_URL}blood-o.webp`} alt="Blood-O logo" className="w-full h-full object-contain" />
               </div>
               <span className="text-xl font-bold text-white whitespace-nowrap">Blood-O</span>
             </div>
